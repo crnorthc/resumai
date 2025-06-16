@@ -1,0 +1,1 @@
+from worker_app.document_builder.fonts.roboto.config import config as roboto_config

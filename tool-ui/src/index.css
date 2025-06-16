@@ -1,0 +1,46 @@
+@import 'tailwindcss';
+@import 'primeicons/primeicons.css';
+
+@theme {
+  --color-darkish: #192339;
+  --color-darker: #111827;
+}
+
+.p-chips-token {
+  margin-bottom: 0.5rem;
+}
+
+.p-tabmenu-nav {
+  justify-content: center;
+}
+
+.p-menuitem-link {
+  background-color: #192339 !important;
+}
+
+.p-accordion .p-accordion-header .p-accordion-header-link {
+  background: #192339 !important;
+}
+
+.p-accordion-content {
+  background: #192339 !important;
+}
+
+.p-stepper-panels {
+  background: #192339 !important;
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #111827;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -1,0 +1,11 @@
+**/__pycache__
+common/dist/
+common/build
+**/venv
+completed_resumes/*
+**/.env
+example_data.json
+pdf_builder.py
+test.py
+common/src/common.egg-info
+**/.DS_Store
