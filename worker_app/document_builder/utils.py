@@ -1,4 +1,4 @@
-from worker_app.document_builder.fonts import roboto_config
+from worker_app.document_builder.fonts.roboto import config as roboto_config
 from worker_app.document_builder.writer_types import Font
 
 

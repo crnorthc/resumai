@@ -1,7 +1,7 @@
 from pydantic import ValidationError, validate_call
 from common.applicant import Applicant, Status
-from common.applicant_data import GeneratedData
-from common.celery import TASK_NAME, celery_app, QUEUE_NAME
+from common.applicant_schemas import GeneratedData
+from common.celery_app import TASK_NAME, celery_app, QUEUE_NAME
 
 
 from server_app.message_enums import (

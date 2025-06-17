@@ -1,7 +1,7 @@
 from typing import List, Any, Optional
 
 from pydantic import BaseModel, Field
-from common.applicant_data import GeneratedData
+from common.applicant_schemas import GeneratedData
 
 from server_app.message_enums import (
     OutboundWebsocketMessage,
