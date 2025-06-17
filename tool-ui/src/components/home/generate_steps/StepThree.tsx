@@ -26,6 +26,7 @@ export function StepThree({ stepperRef, socket }: { stepperRef: RefObject<Steppe
   return (
     <div>
       <div className="w-full py-8 flex flex-col items-center space-y-6 bg-darkish rounded-md">
+        <p>This is the prompt that will be used to generate your resume's information. Feel free to make some edits!</p>
         <InputTextarea
           value={prompt}
           onChange={(e) => {
