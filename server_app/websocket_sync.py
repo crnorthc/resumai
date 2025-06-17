@@ -5,9 +5,11 @@ from redis.asyncio import Redis
 from common.redis_client import RedisClient
 from common.job_updates import UPDATES_CHANNEL, JobUpdateMessage
 
-from server_app.message_enums import WEBSOCKET_CHANNEL, OutboundWebsocketMessage
+from server_app.message_enums import OutboundWebsocketMessage
 from server_app.schemas import WebsocketResponseMessageSchema
-from server_app.pubsub_message_service import handle_pubsub_message
+from server_app.pubsub_message_service import (
+    handle_pubsub_message,
+)
 
 redis_client = RedisClient()
 
@@ -66,9 +68,6 @@ class InstanceSync:
                         websocket,
                         {"type": OutboundWebsocketMessage.APPLICANT_DATA_EXPIRED},
                     )
-
-    def send_message(self, message):
-        redis_client.publish(WEBSOCKET_CHANNEL, json.dumps(message))
 
 
 manager = ConnectionManager()

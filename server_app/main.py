@@ -3,10 +3,6 @@ import asyncio
 from contextlib import asynccontextmanager
 from uuid import uuid4
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse

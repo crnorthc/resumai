@@ -1,3 +1,5 @@
+import os
+
 from typing import List, Optional
 
 from reportlab.pdfgen import canvas
@@ -38,7 +40,7 @@ class PDFWriter(ResumeWriter):
     ):
         super().__init__(
             font=font,
-            file_path=f"./completed_resumes/{file_path}.pdf",
+            file_path=f"{os.environ.get('COMPLETED_RESUMES_DIR')}{file_path}.docx",
             default_font_size=default_font_size,
             default_font_style=default_font_style,
             margin_top=margin_top,

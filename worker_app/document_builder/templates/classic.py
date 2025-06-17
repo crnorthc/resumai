@@ -14,7 +14,6 @@ from worker_app.document_builder.writer_types import (
 class ClassicTemplate(ResumeTemplate):
     def __init__(self, applicant: Applicant):
         self.applicant = applicant
-        print("HERE")
         self.writer_class = (
             PDFWriter if self.applicant.document_type == "pdf" else DOCXWriter
         )
