@@ -2,12 +2,14 @@ import json
 
 from fastapi import WebSocket
 from redis.asyncio import Redis
+from common.redis_client import RedisClient
+from common.job_updates import UPDATES_CHANNEL, JobUpdateMessage
 
-from common.redis_client import redis_client
-from common.redis_types import UPDATES_CHANNEL
-from server_app.communication_types import WEBSOCKET_CHANNEL, OutboundWebsocketMessage
+from server_app.message_enums import WEBSOCKET_CHANNEL, OutboundWebsocketMessage
 from server_app.schemas import WebsocketResponseMessageSchema
 from server_app.pubsub_message_service import handle_pubsub_message
+
+redis_client = RedisClient()
 
 
 class ConnectionManager:
@@ -24,7 +26,7 @@ class ConnectionManager:
     async def send_message(
         self, websocket: WebSocket, message: WebsocketResponseMessageSchema
     ):
-        await websocket.send_json(message)
+        await websocket.send_json(message.model_dump(mode="json"))
 
     def disconnect(self, applicant_id: str):
         del self.active_connections[applicant_id]
@@ -39,17 +41,19 @@ class InstanceSync:
     async def handle_messages(self):
         await self.pubsub.subscribe(UPDATES_CHANNEL)
         await self.pubsub.subscribe(
-            "__keyevent@0__:expired"
-        )  # listens for expired keys
+            "__keyevent@0__:expired"  # listens for expired keys
+        )
         async for redis_message in self.pubsub.listen():
             if redis_message["type"] == "message":
                 data = json.loads(redis_message["data"])
-                message_applicant_id = data.get("applicant_id", "")
+                message = JobUpdateMessage.model_validate(data)
+
                 websocket = self.local_manager.get_active_websocket(
-                    message_applicant_id
+                    message.applicant_id
                 )
-                if data and websocket:
-                    response = handle_pubsub_message(data)
+
+                if websocket:
+                    response = handle_pubsub_message(message)
                     await self.local_manager.send_message(websocket, response)
             # Applicant's data expired from redis key/value store
             elif redis_message["type"] == "pmessage":

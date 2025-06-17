@@ -24,7 +24,7 @@ export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperR
 
   const keys = getApiKeys();
   const availableModels = AIModels.filter((model) => keys[model.code as ApiKeyType]);
-  const [model, setModel] = useState<string | undefined>();
+  const [model, setModel] = useState<{ model: string; provider: ApiKeyType }>(documentConfig.model);
 
   const { setStep } = useStepperState();
   useEffect(() => {
@@ -40,22 +40,21 @@ export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperR
   });
 
   const handleNext = () => {
-    updateDocumentConfig({
+    const documentConfig = {
       dark_mode: darkMode,
       document_type: docType,
       edit_generated_info: editBulletPoints,
       edit_prompt: editPrompt,
       resume_template: template,
-    });
+      model: { ...model, api_key: keys[model.provider]?.encrypted_key ?? '' },
+    };
+
+    updateDocumentConfig(documentConfig);
 
     socket.emit(WebsocketRequestEvent.GenerateResume, {
       ...getApplicantData(),
+      ...documentConfig,
       open_position: getJobData(),
-      dark_mode: darkMode,
-      document_type: docType,
-      edit_generated_info: editBulletPoints,
-      edit_prompt: editPrompt,
-      resume_template: template,
     });
   };
 
@@ -113,7 +112,7 @@ export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperR
                 value={model}
                 onChange={(e) => setModel(e.value)}
                 options={availableModels}
-                optionLabel="modelName"
+                optionLabel="model"
                 optionGroupLabel="name"
                 optionGroupChildren={['models']}
                 className="w-90 overflow-x-hidden"
@@ -134,7 +133,6 @@ export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperR
               />
             </div>
           </div>
-          {/* <Carousel value={templates} itemTemplate={(item) => <TemplateTemplate template={item} />} /> */}
           <div className="flex flex-col gap-1 mt-6">
             <label className="text-sm text-white/40">Resume Template</label>
             <Dropdown
@@ -157,13 +155,3 @@ export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperR
     </div>
   );
 }
-
-// function TemplateTemplate({ template }: { template: ResumeTemplate }) {
-//   return (
-//     <div>
-//       <h1>{template.name}</h1>
-
-//       <Image src={template.previews.dark} alt={template.name} width="250" />
-//     </div>
-//   );
-// }

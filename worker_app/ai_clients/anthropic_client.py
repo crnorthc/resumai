@@ -1,47 +1,40 @@
-import os
 import json
 
 from anthropic import Anthropic
-
 from common.applicant import Applicant
+from common.api_key_service import decrypt_api_key
+
+from worker_app.ai_clients.ai_client import AIClient, InvalidAIResponse
 
 
-class AnthropicClient:
-    def __init__(self):
-        self.client = Anthropic(api_key=os.environ.get("OPEN_AI_API_KEY"))
-
-    def validate_response(self, response, applicant: Applicant):
-        try:
-            data = json.loads(response.output_text)
-        except:
-            pass
-            # TODO reprompt
-
-        for position in applicant.positions:
-            if not position["company"] in data:
-                pass
-                # handle
-
-        if len(data["tools"]) == 0:
-            pass
-            # handle
-
-        if len(data["languages"]) == 0:
-            pass
-            # handle
-
-        return data
+class AnthropicClient(AIClient):
+    def __init__(self, api_key, model):
+        self.client = Anthropic(api_key=decrypt_api_key(api_key))
+        self.model = model
 
     def generate_resume_info(self, applicant: Applicant, prompt: str):
         response = self.client.messages.create(
-            model="claude-2.0",
+            model=self.model,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=2048,
         )
 
-        data = self.validate_response(response, applicant)
+        response_text = response.content[0]["text"]
 
-        return data
+        if not self.validate_response(response_text, applicant):
+            response = self.client.messages.create(
+                model=self.model,
+                messages=[
+                    {"role": "user", "content": prompt},
+                    {"role": "assistant", "content": response_text},
+                    {"role": "user", "content": self.get_retry_prompt(applicant)},
+                ],
+                max_tokens=2048,
+            )
 
+            response_text = response.content[0]["text"]
 
-openai_client = AnthropicClient()
+            if not self.validate_response(response_text, applicant):
+                raise InvalidAIResponse("Could not get valid response from AI")
+
+        return json.loads(response_text)

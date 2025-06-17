@@ -1,29 +1,28 @@
-from common.redis_types import JobUpdateMessage, JobUpdate, get_job_update_type
+from pydantic import validate_call
+from common.job_updates import JobUpdate, JobUpdateMessage
 from common.applicant import Applicant
-from server_app.communication_types import OutboundWebsocketMessage
+
+from server_app.message_enums import OutboundWebsocketMessage
+from server_app.schemas import WebsocketResponseMessageSchema
 
 
+@validate_call
 def handle_pubsub_message(message: JobUpdateMessage):
-    message_type = get_job_update_type(message["type"])
-    if message_type == JobUpdate.JOB_STARTED:
-        return {"type": OutboundWebsocketMessage.JOB_STARTED.value}
-    elif message_type == JobUpdate.EDIT_PROMPT:
-        applicant_id = message.get("applicant_id", "")
-        applicant = Applicant.get_applicant(applicant_id)
-        return {
-            "type": OutboundWebsocketMessage.CONFIRM_PROMPT.value,
+    if message.type == JobUpdate.JOB_STARTED:
+        response = {"type": OutboundWebsocketMessage.JOB_STARTED}
+    elif message.type == JobUpdate.EDIT_PROMPT:
+        applicant = Applicant.get_applicant(message.applicant_id)
+        response = {
+            "type": OutboundWebsocketMessage.CONFIRM_PROMPT,
             "data": applicant.generated_prompt,
         }
-    elif message_type == JobUpdate.EDIT_INFO:
-        applicant_id = message.get("applicant_id", "")
-        applicant = Applicant.get_applicant(applicant_id)
-        return {
-            "type": OutboundWebsocketMessage.CONFIRM_INFO.value,
-            "data": applicant.generated_info,
+    elif message.type == JobUpdate.EDIT_INFO:
+        applicant = Applicant.get_applicant(message.applicant_id)
+        response = {
+            "type": OutboundWebsocketMessage.CONFIRM_INFO,
+            "data": applicant.generated_info.model_dump(),
         }
-    elif message_type == JobUpdate.JOB_COMPLETED:
-        return {"type": OutboundWebsocketMessage.JOB_COMPLETED.value}
-    elif message_type == JobUpdate.GENERATING_DOCUMENT:
-        return {"type": OutboundWebsocketMessage.DOCUMENT_GENERATING.value}
     else:
-        return None
+        response = {"type": OutboundWebsocketMessage.JOB_COMPLETED}
+
+    return WebsocketResponseMessageSchema.model_validate(response)

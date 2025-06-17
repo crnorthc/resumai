@@ -1,43 +1,31 @@
-import os
 import json
 
 from openai import OpenAI
-
 from common.applicant import Applicant
+from common.api_key_service import decrypt_api_key
+
+from worker_app.ai_clients.ai_client import AIClient, InvalidAIResponse
 
 
-class OpenAIClient:
-    def __init__(self):
-        self.client = OpenAI(api_key=os.environ.get("OPEN_AI_API_KEY"))
-
-    def validate_response(self, response, applicant: Applicant):
-        try:
-            data = json.loads(response.output_text)
-        except:
-            pass
-            # TODO reprompt
-
-        for position in applicant.positions:
-            if not position["company"] in data:
-                pass
-                # handle
-
-        if len(data["tools"]) == 0:
-            pass
-            # handle
-
-        if len(data["languages"]) == 0:
-            pass
-            # handle
-
-        return data
+class OpenAIClient(AIClient):
+    def __init__(self, api_key, model):
+        self.client = OpenAI(api_key=decrypt_api_key(api_key))
+        self.model = model
 
     def generate_resume_info(self, applicant: Applicant, prompt: str):
-        response = self.client.responses.create(model="gpt-4.1-mini", input=prompt)
+        response = self.client.responses.create(model=self.model, input=prompt)
 
-        data = self.validate_response(response, applicant)
+        response_text = response.output_text
 
-        return data
+        if not self.validate_response(response_text, applicant):
+            response = self.client.responses.create(
+                model=self.model,
+                input=self.get_retry_prompt(applicant),
+                previous_response_id=response.id,
+            )
 
+            response_text = response.output_text
+            if not self.validate_response(response_text, applicant):
+                raise InvalidAIResponse("Could not get valid response from AI")
 
-openai_client = OpenAIClient()
+        return json.loads(response_text)

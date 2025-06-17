@@ -1,43 +1,28 @@
-import os
 import json
 
 from google import genai
-
 from common.applicant import Applicant
+from common.api_key_service import decrypt_api_key
+
+from worker_app.ai_clients.ai_client import AIClient, InvalidAIResponse
 
 
-class GeminiClient:
-    def __init__(self):
-        self.client = genai.Client(api_key=os.environ.get("OPEN_AI_API_KEY"))
-
-    def validate_response(self, response, applicant: Applicant):
-        try:
-            data = json.loads(response.output_text)
-        except:
-            pass
-            # TODO reprompt
-
-        for position in applicant.positions:
-            if not position["company"] in data:
-                pass
-                # handle
-
-        if len(data["tools"]) == 0:
-            pass
-            # handle
-
-        if len(data["languages"]) == 0:
-            pass
-            # handle
-
-        return data
+class GeminiClient(AIClient):
+    def __init__(self, api_key, model):
+        self.client = genai.Client(api_key=decrypt_api_key(api_key))
+        self.model = model
 
     def generate_resume_info(self, applicant: Applicant, prompt: str):
-        response = self.client.models.generate_content(
-            model="gpt-4.1-mini", input=prompt
-        )
+        chat = self.client.chats.create(model=self.model)
 
-        return response
+        response = chat.send_message(prompt)
 
+        response_text = response.text
 
-openai_client = GeminiClient()
+        if not self.validate_response(response_text, applicant):
+            response = chat.send_message(self.get_retry_prompt(applicant))
+            response_text = response.text
+            if not self.validate_response(response_text, applicant):
+                raise InvalidAIResponse("Could not get valid response from AI")
+
+        return json.loads(response_text)

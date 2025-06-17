@@ -23,6 +23,11 @@ export interface DocumentConfigType {
   edit_prompt: boolean;
   resume_template: string;
   dark_mode: boolean;
+  model: {
+    provider: ApiKeyType;
+    model: string;
+    api_key: string;
+  };
 }
 
 export interface ResumeTemplate {
@@ -82,8 +87,8 @@ export const WebsocketRequestEvent = {
 
 export interface WebsocketPayloadTypes {
   [WebsocketRequestEvent.GenerateResume]: GenarateResumePayload;
-  [WebsocketResponseEvent.ConfirmPrompt]: string;
-  [WebsocketResponseEvent.ConfirmInfo]: ConfirmedGeneratedData;
+  [WebsocketRequestEvent.ConfirmedPrompt]: string;
+  [WebsocketRequestEvent.ConfirmedInfo]: ConfirmedGeneratedData;
 }
 
 export const WebsocketResponseEvent = {
@@ -92,8 +97,6 @@ export const WebsocketResponseEvent = {
   JobStarted: 'job_started',
   ConfirmPrompt: 'confirm_prompt',
   ConfirmInfo: 'confirm_info',
-  DataGenerated: 'data_generated',
-  DocumentGenerating: 'document_generating',
   JobCompleted: 'job_completed',
   ApplicantDataExpired: 'applicant_data_expired',
 };
@@ -105,9 +108,7 @@ export interface ServerEventsType {
   [WebsocketResponseEvent.GenerationQueued]: () => void;
   [WebsocketResponseEvent.JobStarted]: () => void;
   [WebsocketResponseEvent.ConfirmPrompt]: (data: string) => void;
-  [WebsocketResponseEvent.ConfirmInfo]: () => void;
-  [WebsocketResponseEvent.DataGenerated]: (data: ConfirmedGeneratedData) => void;
-  [WebsocketResponseEvent.DocumentGenerating]: () => void;
+  [WebsocketResponseEvent.ConfirmInfo]: (data: ConfirmedGeneratedData) => void;
   [WebsocketResponseEvent.JobCompleted]: () => void;
   [WebsocketResponseEvent.ApplicantDataExpired]: () => void;
 }

@@ -3,23 +3,17 @@ import asyncio
 from contextlib import asynccontextmanager
 from uuid import uuid4
 
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-
-
 from dotenv import load_dotenv
+from common.resume_templates import TEMPLATE_DATA
+from common.api_key_service import encrypt_api_key
+from common.applicant import Applicant
 
-
-from server_app.api_key_service import encrypt_api_key
-from server_app.applicant.dependencies import Currrent_Applicant
 from server_app.schemas import EncryptApiKeySchema
 from server_app.websocket_sync import manager, connection_manager
 from server_app.websocket_message_service import handle_websocket_message
-
-# from server_app.applicant.routes import applicant_router
-from common.resume_templates import TEMPLATE_DATA
 
 
 load_dotenv()
@@ -75,7 +69,8 @@ def handle_encryption(payload: EncryptApiKeySchema):
 
 
 @app.get("/applicant/{applicant_id}/resume")
-def get_resume(applicant: Currrent_Applicant):
+def get_resume(applicant_id: str):
+    applicant = Applicant.get_applicant(applicant_id)
     if applicant.document_type == "pdf":
         return FileResponse(
             applicant.resume_path,

@@ -70,12 +70,12 @@ class ClassicTemplate(ResumeTemplate):
             textline = writer.create_text_line(
                 [
                     {
-                        "value": position["position"],
+                        "value": position.position,
                         "font_style": FontStyle.SEMIBOLD,
                         "font_size": 11,
                     },
                     {
-                        "value": f", {position["company"]} - {position["location"]}",
+                        "value": f", {position.company} - {position.location}",
                         "font_style": FontStyle.LIGHT,
                         "font_size": 11,
                     },
@@ -86,7 +86,7 @@ class ClassicTemplate(ResumeTemplate):
                     [
                         {"value": textline, "alignment": Alignment.LEFT},
                         {
-                            "value": f"{position["start"]} - {position["end"]}",
+                            "value": f"{position.start} - {position.end}",
                             "alignment": Alignment.RIGHT,
                             "font_style": FontStyle.LIGHT,
                             "font_size": 11,
@@ -94,6 +94,11 @@ class ClassicTemplate(ResumeTemplate):
                     ]
                 ],
                 row_padding=3,
+            )
+            positions = (
+                self.applicant.confirmed_info.positions
+                if self.applicant.confirmed_info
+                else self.applicant.generated_info.positions
             )
             writer.add_bullet_points(
                 [
@@ -103,9 +108,7 @@ class ClassicTemplate(ResumeTemplate):
                         "font_style": FontStyle.LIGHT,
                         "font_size": 11,
                     }
-                    for point in self.applicant.confirmed_info.get(
-                        "positions", self.applicant.generated_info["positions"]
-                    )[position["company"]]
+                    for point in positions.root[position.company]
                 ]
             )
         writer.add_vertical_space(10)
@@ -117,6 +120,16 @@ class ClassicTemplate(ResumeTemplate):
             line_spacing=0.5,
         )
         writer.add_horizontal_line(2)
+        languages = (
+            self.applicant.confirmed_info.languages
+            if self.applicant.confirmed_info
+            else self.applicant.generated_info.languages
+        )
+        tools = (
+            self.applicant.confirmed_info.tools
+            if self.applicant.confirmed_info
+            else self.applicant.generated_info.tools
+        )
         writer.add_table(
             [
                 [
@@ -127,11 +140,7 @@ class ClassicTemplate(ResumeTemplate):
                         "font_size": 11,
                     },
                     {
-                        "value": ", ".join(
-                            self.applicant.confirmed_info.get(
-                                "languages", self.applicant.generated_info["languages"]
-                            )
-                        ),
+                        "value": ", ".join(languages),
                         "alignment": Alignment.LEFT,
                         "font_style": FontStyle.LIGHT,
                         "font_size": 11,
@@ -145,11 +154,7 @@ class ClassicTemplate(ResumeTemplate):
                         "font_size": 11,
                     },
                     {
-                        "value": ", ".join(
-                            self.applicant.confirmed_info.get(
-                                "tools", self.applicant.generated_info["tools"]
-                            )
-                        ),
+                        "value": ", ".join(tools),
                         "alignment": Alignment.LEFT,
                         "font_style": FontStyle.LIGHT,
                         "font_size": 11,
@@ -218,7 +223,7 @@ class ClassicTemplate(ResumeTemplate):
         )
         writer.add_footer_line(textline)
         link_params = {
-            "id": f"{self.applicant.open_position["company"]}, {self.applicant.open_position["position"]}"
+            "id": f"{self.applicant.open_position.company}, {self.applicant.open_position.position}"
         }
 
         link = f"https://calebnorthcott.com/resume?{urlencode(link_params)}"

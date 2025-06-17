@@ -1,63 +1,70 @@
-from pydantic import ValidationError
+from pydantic import ValidationError, validate_call
 from common.applicant import Applicant, Status
-from server_app.communication_types import (
-    InboundWebsocketMessage,
-    OutboundWebsocketMessage,
-    get_websocket_message_type,
-)
-from server_app.schemas import GeneratePayloadSchema, WebsocketRequestMessageSchema
+from common.applicant_data import GeneratedData
 from common.celery import TASK_NAME, celery_app, QUEUE_NAME
 
 
+from server_app.message_enums import (
+    InboundWebsocketMessage,
+    OutboundWebsocketMessage,
+)
+from server_app.schemas import (
+    WebsocketRequestMessageSchema,
+    WebsocketResponseMessageSchema,
+)
+
+
+@validate_call
 def handle_websocket_message(applicant_id: str, message: WebsocketRequestMessageSchema):
-    message_type = get_websocket_message_type(message["type"])
-    if message_type == InboundWebsocketMessage.GENERATE_RESUME:
+    if message.type == InboundWebsocketMessage.GENERATE_RESUME:
+        errors = None
         try:
-            applicant_data = GeneratePayloadSchema.model_validate(message["data"])
+            applicant = Applicant.model_validate(
+                {"applicant_id": applicant_id, **message.data}
+            )
         except ValidationError as e:
             errors = e.errors()
 
-            return {
-                "type": OutboundWebsocketMessage.MISSING_FIELDS.value,
+        if errors:
+            response = {
+                "type": OutboundWebsocketMessage.MISSING_FIELDS,
                 "data": [
                     ".".join([str(loc) for loc in error["loc"]])
                     for error in errors
                     if error["type"] in ["missing", "string_too_short", "too_short"]
                 ],
             }
+        else:
+            applicant.update_status(Status.JOB_INITIALIZED)
+            celery_app.send_task(
+                TASK_NAME,
+                args=[{"applicant_id": applicant.applicant_id}],
+                queue=QUEUE_NAME,
+            )
+            response = {"type": OutboundWebsocketMessage.GENERATION_QUEUED}
 
-        applicant = Applicant(applicant_id, **applicant_data.model_dump())
-        applicant.save()
-
-        celery_app.send_task(
-            TASK_NAME, args=[{"applicant_id": applicant.applicant_id}], queue=QUEUE_NAME
-        )
-        applicant.update_status(Status.GENERATING)
-
-        return {"type": OutboundWebsocketMessage.GENERATION_QUEUED.value}
-    elif message_type == InboundWebsocketMessage.CONFIRMED_PROMPT:
+    elif message.type == InboundWebsocketMessage.CONFIRMED_PROMPT:
         applicant = Applicant.get_applicant(applicant_id)
-        applicant.confirmed_prompt = message["data"]
-        applicant.generated_info = None
-        applicant.confirmed_info = None
-        applicant.resume_path = None
+        applicant.confirmed_prompt = message.data
         applicant.save()
 
         celery_app.send_task(
             TASK_NAME, args=[{"applicant_id": applicant.applicant_id}], queue=QUEUE_NAME
         )
-        applicant.update_status(Status.GENERATING)
+        applicant.update_status(Status.PROMPT_CONFIRMED)
 
-        return {"type": OutboundWebsocketMessage.GENERATION_QUEUED.value}
-    elif message_type == InboundWebsocketMessage.CONFIRMED_INFO:
+        response = {"type": OutboundWebsocketMessage.GENERATION_QUEUED}
+
+    else:  # Confirmed Info
         applicant = Applicant.get_applicant(applicant_id)
-        applicant.confirmed_info = message["data"]
-        applicant.resume_path = None
+        applicant.confirmed_info = GeneratedData.model_validate(message.data)
         applicant.save()
 
         celery_app.send_task(
             TASK_NAME, args=[{"applicant_id": applicant.applicant_id}], queue=QUEUE_NAME
         )
-        applicant.update_status(Status.GENERATING)
+        applicant.update_status(Status.INFO_CONFIRMED)
 
-        return {"type": OutboundWebsocketMessage.GENERATION_QUEUED.value}
+        response = {"type": OutboundWebsocketMessage.GENERATION_QUEUED}
+
+    return WebsocketResponseMessageSchema.model_validate(response)

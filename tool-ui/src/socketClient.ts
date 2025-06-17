@@ -83,7 +83,6 @@ class SocketClient {
   }
 
   public emit<K extends WebsocketRequestEventType>(event: K, data: WebsocketPayloadTypes[K]) {
-    console.log('here', data);
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) return;
     const payload = JSON.stringify({ type: event, data });
     this.socket.send(payload);

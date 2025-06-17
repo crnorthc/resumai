@@ -3,6 +3,9 @@ import json
 
 import redis
 from dotenv import load_dotenv
+from pydantic import validate_call
+
+from common.job_updates import JobUpdateMessage
 
 load_dotenv()
 
@@ -15,8 +18,9 @@ class RedisClient:
             host=os.environ.get("REDIS_HOST"), port=os.environ.get("REDIS_PORT"), db=0
         )
 
-    def publish(self, channel, message):
-        return self.redis.publish(channel, json.dumps(message))
+    @validate_call
+    def publish(self, channel: str, message: JobUpdateMessage):
+        return self.redis.publish(channel, message.model_dump_json())
 
     def get_pubsub(self):
         return self.redis.pubsub()
@@ -31,6 +35,3 @@ class RedisClient:
 
     def set(self, key, data, expiration=SECOND_IN_TEN_MINS):
         self.redis.set(key, json.dumps(data), ex=expiration)
-
-
-redis_client = RedisClient()

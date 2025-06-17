@@ -1,29 +1,23 @@
-from typing import List, TypedDict
+from typing import List, Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from common.applicant_data import GeneratedData
 
-from server_app.communication_types import OutboundWebsocketMessage
-from common.applicant_data import GeneratePayloadSchema
-from common.redis_types import GeneratedData
+from server_app.message_enums import (
+    OutboundWebsocketMessage,
+    InboundWebsocketMessage,
+)
 
 
 class EncryptApiKeySchema(BaseModel):
     key: str
 
 
-class WebsocketRequestMessageSchema(TypedDict):
+class WebsocketRequestMessageSchema(BaseModel):
+    type: InboundWebsocketMessage
+    data: Optional[Any] = Field(None)
+
+
+class WebsocketResponseMessageSchema(BaseModel):
     type: OutboundWebsocketMessage
-    data: GeneratedData | GeneratePayloadSchema
-
-
-class GenericResponseSchema(TypedDict):
-    message: str
-
-
-class MissingFieldsSchema(TypedDict):
-    missing_fields: List[str]
-
-
-class WebsocketResponseMessageSchema(TypedDict):
-    type: OutboundWebsocketMessage
-    data: GenericResponseSchema | MissingFieldsSchema | None
+    data: Optional[str | List[str] | GeneratedData | None] = Field(None)
