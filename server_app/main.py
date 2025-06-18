@@ -33,8 +33,8 @@ async def lifespan(_: FastAPI):
 origins = [
     "http://localhost:5000",
     "ws://localhost:5000",
-    "http://localhost:5173",
-    "ws://localhost:5173",
+    "https://resumai.calebnorthcott.com",
+    "wss://resumai.calebnorthcott.com",
 ]
 
 

@@ -1,0 +1,156 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Stack for FastAPI + Vite app with t4g.micro EC2 and Route53 domain
+
+Parameters:
+  KeyPairName:
+    Type: String
+    Description: Name of EC2 KeyPair for SSH access
+  HostedZoneId:
+    Type: String
+    Description: ID of the Route53 Hosted Zone
+  BackendDomainName:
+    Type: String
+    Description: Domain name for FastAPI
+  FrontendDomainName:
+    Type: String
+    Description: Domain name for Vite+React
+  ACMCertificateArn:
+    Type: String
+    Description: The ACM cert ARN for CloudFront
+  VPC:
+    Type: String
+    Description: VPC ID
+
+Resources:
+  AppInstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP, HTTPS, and SSH
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+
+  AppElasticIP:
+    Type: AWS::EC2::EIP
+
+  AppInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t4g.micro
+      KeyName: !Ref KeyPairName
+      ImageId: ami-0aef57767f5404a3c # Ubuntu ARM 22.04 in us-east-1, update if needed
+      SecurityGroupIds:
+        - !Ref AppInstanceSecurityGroup
+      Tags:
+        - Key: Name
+          Value: FastAPI-Demo
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          git clone https://github.com/crnorthc/resumai.git resumai
+          cd resumai
+          git checkout demo
+          chmod +x setup_backend.sh
+          sh setup_backend.sh
+
+  IPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref AppInstance
+      EIP: !Ref AppElasticIP
+
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      TTL: 300
+      ResourceRecords:
+        - !Ref AppElasticIP
+
+  FrontendS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${FrontendDomainName}'
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: false
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: false
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendS3Bucket
+      PolicyDocument:
+        Statement:
+          - Action: 's3:GetObject'
+            Effect: 'Allow'
+            Resource: !Sub '${FrontendS3Bucket.Arn}/*'
+            Principal: '*'
+
+  CloudFrontOAI:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: Access identity for CloudFront to access S3
+
+  FrontendCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        Aliases:
+          - !Ref FrontendDomainName
+        ViewerCertificate:
+          AcmCertificateArn: !Ref ACMCertificateArn
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        Origins:
+          - DomainName: !GetAtt FrontendS3Bucket.RegionalDomainName
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOAI}'
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: ['GET', 'HEAD']
+          CachedMethods: ['GET', 'HEAD']
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+
+  FrontendDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref FrontendDomainName
+      Type: A
+      AliasTarget:
+        HostedZoneId: Z2FDTNDATAQYW2
+        DNSName: !GetAtt FrontendCloudFrontDistribution.DomainName
+
+Outputs:
+  PublicIP:
+    Description: Public IP of the EC2 instance
+    Value: !Ref AppElasticIP
+  Domain:
+    Description: Domain name
+    Value: !Ref DomainName
