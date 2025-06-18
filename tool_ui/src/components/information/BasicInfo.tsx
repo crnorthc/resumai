@@ -4,6 +4,7 @@ import type { FormEvent } from 'react';
 import { Button } from 'primereact/button';
 import { type ApplicantData } from '../../types';
 import { updateApplicantData } from '../../utils';
+import { toast } from 'react-toastify';
 
 export function BasicInfo({
   applicantData,
@@ -19,6 +20,7 @@ export function BasicInfo({
 
     updateApplicantData(data);
     refreshApplicant();
+    toast.success('Saved!');
   };
 
   return (

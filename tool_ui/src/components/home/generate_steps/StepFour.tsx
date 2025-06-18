@@ -19,7 +19,7 @@ export function StepFour({ stepperRef, socket }: { stepperRef: RefObject<Stepper
     setStep('editResume');
   }, []);
 
-  if (!generatedInfo.positions) {
+  if (!generatedInfo.positions.length) {
     return (
       <div className="w-full text-center pt-24 text-2xl space-y-4">
         <h1>Loading</h1>

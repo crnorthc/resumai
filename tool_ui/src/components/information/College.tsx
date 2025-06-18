@@ -4,6 +4,7 @@ import { type ApplicantData } from '../../types';
 import type { FormEvent } from 'react';
 import { Button } from 'primereact/button';
 import { updateApplicantData } from '../../utils';
+import { toast } from 'react-toastify';
 
 export function College({
   applicantData,
@@ -19,6 +20,7 @@ export function College({
 
     updateApplicantData(data);
     refreshApplicant();
+    toast.success('Saved!');
   };
   return (
     <InfoWrapper onSubmit={onSubmit} title="College">

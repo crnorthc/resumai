@@ -6,6 +6,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { addPosition, deletePosition, updatePosition } from './utils';
+import { toast } from 'react-toastify';
 
 export function Positions({
   applicantData,
@@ -24,6 +25,7 @@ export function Positions({
   const handleUpdatePosition = (positionData: PositionPayload, index: number) => {
     updatePosition(positionData, index);
     refreshApplicant();
+    toast.success('Saved!');
   };
 
   return (

@@ -3,24 +3,18 @@ import { useSocketClient } from './hooks/useSocket';
 import { useApplicantId } from './hooks/useApplicantId';
 import { EditInfo } from './components/EditInfo';
 import { Home } from './components/home/Home';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { WebsocketResponseEvent } from './types';
-import { Toast } from 'primereact/toast';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
 import { setConfirmedInfo, setConfirmedPrompt } from './utils';
 
 function App() {
   const clientId = useApplicantId();
   const socket = useSocketClient(clientId);
-  const toastRef = useRef<Toast | null>(null);
 
   useEffect(() => {
     socket?.on(WebsocketResponseEvent.ApplicantDataExpired, () => {
-      toastRef.current?.show({
-        severity: 'error',
-        summary: 'Session Expired',
-        detail: 'Your data was cleared from the server. You will need to restart the process',
-        life: 3000,
-      });
+      toast.error('Your data was cleared from the server. You will need to restart the process');
     });
     setConfirmedInfo(null);
     setConfirmedPrompt('');
@@ -28,7 +22,7 @@ function App() {
 
   return (
     <>
-      <Toast ref={toastRef} position="top-right" />
+      <ToastContainer position="top-right" autoClose={5000} theme="dark" transition={Bounce} />
       <div className="flex justify-center w-screen">
         <div className="max-w-[1050px] w-full">
           {!socket ? (
