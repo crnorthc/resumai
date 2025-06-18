@@ -18,5 +18,14 @@ sudo certbot certonly --webroot \
     --agree-tos \
     --email crnorthc99@gmail.com
 
+VALUE=$(aws ssm get-parameter \
+  --name "KEY_ENCRYPTION_SEED" \
+  --with-decryption \
+  --query "Parameter.Value" \
+  --output text)
+
+echo "KEY_ENCRYPTION_SEED=$VALUE" > worker_app/.env
+echo "KEY_ENCRYPTION_SEED=$VALUE" > server_app/.env
+
 # Run docker-compose
 docker-compose up -d
