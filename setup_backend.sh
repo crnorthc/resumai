@@ -6,11 +6,8 @@ newgrp docker
 systemctl enable docker
 systemctl start docker
 
-
-cd /home/ubuntu/resumai
-
 # Setup nginx
-cp ./nginx.conf /etc/nginx/nginx.conf
+sudo cp nginx.conf /etc/nginx/nginx.conf
 sudo systemctl reload nginx
 
 sudo mkdir -p /var/www/certbot
