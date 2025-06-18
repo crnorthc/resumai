@@ -25,7 +25,8 @@ class RedisClient:
 
     @validate_call
     def publish(self, channel: str, message: JobUpdateMessage):
-        return self.redis.publish(channel, message.model_dump_json())
+        response = self.redis.publish(channel, message.model_dump_json())
+        print("✅ Published to Redis!", response)
 
     def get_pubsub(self):
         return self.redis.pubsub()
