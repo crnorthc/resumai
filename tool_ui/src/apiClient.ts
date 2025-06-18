@@ -10,7 +10,7 @@ import type {
 import { updateApplicantData, updateJobData } from './utils';
 
 export class ApiClient {
-  static baseUrl = import.meta.env.VITE_API_BASE_URL;
+  static baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
 
   static async createApplicant(): Promise<string> {
     const response = await fetch(`${this.baseUrl}/applicant`, {

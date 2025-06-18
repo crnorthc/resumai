@@ -5,6 +5,7 @@ export type ServerEventListeners = Map<keyof ServerEventsType, Set<ServerEventsT
 
 class SocketClient {
   private static instance: SocketClient;
+  baseUrl = import.meta.env.VITE_WEBSOCKET_BASE_URL ?? 'ws://localhost:8000';
   private socket: WebSocket | null = null;
   private listeners: ServerEventListeners = new Map();
   public connected = false;
@@ -23,7 +24,7 @@ class SocketClient {
     console.log('WebSocket connecting');
     if (this.connected || this.socket) return;
 
-    this.socket = new WebSocket(`${import.meta.env.VITE_WEBSOCKET_BASE_URL}/ws/${applicant_id}`);
+    this.socket = new WebSocket(`${this.baseUrl}/ws/${applicant_id}`);
 
     this.socket.onopen = () => {
       this.connected = true;
