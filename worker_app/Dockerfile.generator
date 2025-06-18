@@ -6,6 +6,7 @@ COPY ./worker_app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./worker_app /app/worker_app
+COPY ./common /app/common
 
 ENV PYTHONPATH=.
 

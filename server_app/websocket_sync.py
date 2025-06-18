@@ -2,7 +2,6 @@ import os
 import json
 
 from fastapi import WebSocket
-from redis.asyncio import Redis
 from common.redis_client import RedisClient
 from common.job_updates import UPDATES_CHANNEL, JobUpdateMessage
 
@@ -40,8 +39,7 @@ class ConnectionManager:
 class InstanceSync:
     def __init__(self, local_manager: ConnectionManager):
         self.local_manager = local_manager
-        redis = Redis(decode_responses=True)
-        self.pubsub = redis.pubsub()
+        self.pubsub = redis_client.get_pubsub()
 
     async def handle_messages(self):
         await self.pubsub.subscribe(UPDATES_CHANNEL)

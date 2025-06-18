@@ -1,6 +1,7 @@
 import json
 
 import redis
+from redis.asyncio import Redis
 from dotenv import load_dotenv
 from pydantic import validate_call
 
@@ -17,6 +18,7 @@ class RedisClient:
             host=host,
             port=port,
         )
+        self.async_redis = Redis(host=host, port=port, decode_responses=True)
         try:
             if self.redis.ping():
                 print("✅ Connected to Redis!")
@@ -29,7 +31,7 @@ class RedisClient:
         print("✅ Published to Redis!", response)
 
     def get_pubsub(self):
-        return self.redis.pubsub()
+        return self.async_redis.pubsub()
 
     def get(self, key):
         data = self.redis.get(key)

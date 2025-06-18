@@ -12,6 +12,7 @@ class AIClient:
         def str_only_list(items):
             return all(isinstance(item, str) for item in items)
 
+        print(response_text)
         try:
             data = json.loads(response_text)
         except:

@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: ./server_app/Dockerfile
     volumes:
-      - ./common:/app/common
+      - ./completed_resumes:/app/completed_resumes
     ports:
       - '8000:8000'
     depends_on:
@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: ./worker_app/Dockerfile.generator
     volumes:
-      - ./common:/app/common
+      - ./completed_resumes:/app/completed_resumes
     depends_on:
       - redis
       - rabbitmq
@@ -28,7 +28,7 @@ services:
       context: .
       dockerfile: ./worker_app/Dockerfile.cleanup
     volumes:
-      - ./common:/app/common
+      - ./completed_resumes:/app/completed_resumes
     depends_on:
       - rabbitmq
 
