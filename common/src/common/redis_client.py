@@ -16,8 +16,12 @@ class RedisClient:
         self.redis = redis.Redis(
             host=host,
             port=port,
-            db=0,
         )
+        try:
+            if self.redis.ping():
+                print("✅ Connected to Redis!")
+        except redis.exceptions.ConnectionError as e:
+            print("❌ Redis connection failed:", e)
 
     @validate_call
     def publish(self, channel: str, message: JobUpdateMessage):

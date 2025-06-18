@@ -9,4 +9,4 @@ COPY ./worker_app /app/worker_app
 
 ENV PYTHONPATH=.
 
-CMD ["celery", "-A", "worker_app.main.celery_app", "worker", "-Q resumes", "--loglevel=info"]
+CMD ["celery", "-A", "worker_app.main.celery_app", "worker", "-Q", "resumes", "--loglevel=info"]
