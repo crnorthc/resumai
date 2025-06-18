@@ -15,7 +15,9 @@ def generate_resume(data):
 
 @celery_app.task(name="cleanup_old_files")
 def cleanup_old_files():
-    folder = os.environ.get("COMPLETED_RESUMES_DIR")[:-1]
+    folder = os.environ.get("COMPLETED_RESUMES_DIR", "/app/common/completed_resumes/")[
+        :-1
+    ]
     now = time.time()
     deleted = 0
     for fname in os.listdir(folder):

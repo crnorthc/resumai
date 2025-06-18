@@ -13,9 +13,11 @@ SECOND_IN_TEN_MINS = 10 * 60
 
 
 class RedisClient:
-    def __init__(self):
+    def __init__(self, host, port):
         self.redis = redis.Redis(
-            host=os.environ.get("REDIS_HOST"), port=os.environ.get("REDIS_PORT"), db=0
+            host=host,
+            port=port,
+            db=0,
         )
 
     @validate_call

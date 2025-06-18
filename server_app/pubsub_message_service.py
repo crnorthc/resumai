@@ -31,7 +31,7 @@ def handle_pubsub_message(message: JobUpdateMessage):
 
 
 def clean_expired_applicant(applicant: Applicant):
-    base_path = f"{os.environ.get('COMPLETED_RESUMES_DIR')}{applicant.name.lower().replace(" ", "_")}"
+    base_path = f"{os.environ.get('COMPLETED_RESUMES_DIR', '/app/common/completed_resumes/')}{applicant.name.lower().replace(" ", "_")}"
     if os.path.exists(f"{base_path}.docx"):
         os.remove(f"{base_path}.docx")
 

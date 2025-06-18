@@ -1,3 +1,5 @@
+import os
+
 from common.applicant import Applicant, Status
 from common.applicant_schemas import GeneratedData, AIModel
 from common.redis_client import RedisClient
@@ -8,7 +10,11 @@ from worker_app.ai_clients.anthropic_client import AnthropicClient
 from worker_app.ai_clients.gemini_client import GeminiClient
 from worker_app.instructions import instructions_template
 
-redis_client = RedisClient()
+redis_client = RedisClient(
+    RedisClient(
+        os.environ.get("REDIS_HOST", "redis"), os.environ.get("REDIS_PORT", "6379")
+    )
+)
 
 
 class ResumeGenerationJob:

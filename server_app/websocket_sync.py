@@ -1,3 +1,4 @@
+import os
 import json
 
 from fastapi import WebSocket
@@ -11,7 +12,9 @@ from server_app.pubsub_message_service import (
     handle_pubsub_message,
 )
 
-redis_client = RedisClient()
+redis_client = RedisClient(
+    os.environ.get("REDIS_HOST", "redis"), os.environ.get("REDIS_PORT", "6379")
+)
 
 
 class ConnectionManager:
