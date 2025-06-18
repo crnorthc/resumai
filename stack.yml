@@ -44,6 +44,33 @@ Resources:
           ToPort: 443
           CidrIp: 0.0.0.0/0
 
+  BackendRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: backend-parameter-access-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AllowParameterAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: 'arn:aws:ssm:us-east-1:150685103879:parameter/KEY_ENCRYPTION_SEED'
+
+  BackendInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref BackendRole
+
   BackendElasticIP:
     Type: AWS::EC2::EIP
 
@@ -52,7 +79,8 @@ Resources:
     Properties:
       InstanceType: t4g.micro
       KeyName: !Ref KeyPairName
-      ImageId: ami-0141772d9e60b07da # Ubuntu ARM 22.04 in us-east-1
+      ImageId: ami-050499786ebf55a6a # AWS Ubuntu 22.04 LTS
+      IamInstanceProfile: !Ref BackendInstanceProfile
       SecurityGroupIds:
         - !Ref BackendInstanceSecurityGroup
       Tags:
@@ -61,11 +89,14 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
+          su - ubuntu <<'EOF'
+          cd /home/ubuntu
           git clone https://github.com/crnorthc/resumai.git resumai
           cd resumai
           git checkout demo
           chmod +x setup_backend.sh
           sh setup_backend.sh
+          EOF
 
   IPAssociation:
     Type: AWS::EC2::EIPAssociation
