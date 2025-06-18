@@ -1,7 +1,9 @@
+import os
 from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 
 from common.redis_client import RedisClient
 from common.applicant_schemas import (
@@ -13,7 +15,11 @@ from common.applicant_schemas import (
 )
 from common.resume_templates import ResumeTemplate
 
-redis_client = RedisClient()
+load_dotenv()
+
+redis_client = RedisClient(
+    os.environ.get("REDIS_HOST", "redis"), os.environ.get("REDIS_PORT", "6379")
+)
 
 
 class Status(Enum):
