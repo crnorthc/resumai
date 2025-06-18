@@ -1,0 +1,12 @@
+FROM python:3.13-bookworm
+
+WORKDIR /app
+
+COPY ./worker_app/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY ./worker_app /app/worker_app
+
+ENV PYTHONPATH=.
+
+CMD ["celery", "-A", "worker_app.main.celery_app", "worker", "-Q resumes", "--loglevel=info"]

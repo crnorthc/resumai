@@ -13,7 +13,7 @@ export class ApiClient {
   static baseUrl = import.meta.env.VITE_API_BASE_URL;
 
   static async createApplicant(): Promise<string> {
-    const response = await fetch(`http://${this.baseUrl}/applicant`, {
+    const response = await fetch(`${this.baseUrl}/applicant`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -29,7 +29,7 @@ export class ApiClient {
   }
 
   static async getTemplates(): Promise<ResumeTemplate[]> {
-    const response = await fetch(`http://${this.baseUrl}/templates`, {
+    const response = await fetch(`${this.baseUrl}/templates`, {
       method: 'GET',
     });
 
@@ -43,7 +43,7 @@ export class ApiClient {
 
   static async getResume(): Promise<ResumeResponse> {
     const applicantId = window.localStorage.getItem(APPLICANT_ID_KEY);
-    const response = await fetch(`http://${this.baseUrl}/applicant/${applicantId}/resume`);
+    const response = await fetch(`${this.baseUrl}/applicant/${applicantId}/resume`);
 
     if (!response.ok) {
       throw new Error(`Failed to get resume: ${response.statusText}`);
@@ -66,7 +66,7 @@ export class ApiClient {
   }
 
   static async encryptApiKey(rawApiKey: string): Promise<EncryptedApiKey> {
-    const response = await fetch(`http://${this.baseUrl}/encrypt-api-key`, {
+    const response = await fetch(`${this.baseUrl}/encrypt-api-key`, {
       method: 'POST',
       body: JSON.stringify({ key: rawApiKey }),
       headers: {
@@ -85,7 +85,7 @@ export class ApiClient {
 
   static async updateApplicantInfo(data: ApplicantData): Promise<void> {
     const applicantId = window.localStorage.getItem(APPLICANT_ID_KEY);
-    const response = await fetch(`http://${this.baseUrl}/applicant/${applicantId}`, {
+    const response = await fetch(`${this.baseUrl}/applicant/${applicantId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
       headers: {
@@ -103,7 +103,7 @@ export class ApiClient {
 
   static async updateJob(data: JobDataPayload): Promise<void> {
     const applicantId = window.localStorage.getItem(APPLICANT_ID_KEY);
-    const response = await fetch(`http://${this.baseUrl}/applicant/${applicantId}/job`, {
+    const response = await fetch(`${this.baseUrl}/applicant/${applicantId}/job`, {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
@@ -121,7 +121,7 @@ export class ApiClient {
 
   static async addPosition(data: PositionPayload): Promise<void> {
     const applicantId = window.localStorage.getItem(APPLICANT_ID_KEY);
-    const response = await fetch(`http://${this.baseUrl}/applicant/${applicantId}/position`, {
+    const response = await fetch(`${this.baseUrl}/applicant/${applicantId}/position`, {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
@@ -139,7 +139,7 @@ export class ApiClient {
 
   static async updatePosition(data: PositionPayload, position_index: number): Promise<void> {
     const applicantId = window.localStorage.getItem(APPLICANT_ID_KEY);
-    const response = await fetch(`http://${this.baseUrl}/applicant/${applicantId}/position/${position_index}`, {
+    const response = await fetch(`${this.baseUrl}/applicant/${applicantId}/position/${position_index}`, {
       method: 'PUT',
       body: JSON.stringify(data),
       headers: {
@@ -157,7 +157,7 @@ export class ApiClient {
 
   static async deletePosition(position_index: number): Promise<void> {
     const applicantId = window.localStorage.getItem(APPLICANT_ID_KEY);
-    const response = await fetch(`http://${this.baseUrl}/applicant/${applicantId}/position/${position_index}`, {
+    const response = await fetch(`${this.baseUrl}/applicant/${applicantId}/position/${position_index}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

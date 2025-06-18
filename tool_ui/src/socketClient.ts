@@ -23,7 +23,7 @@ class SocketClient {
     console.log('WebSocket connecting');
     if (this.connected || this.socket) return;
 
-    this.socket = new WebSocket(`ws://${import.meta.env.VITE_API_BASE_URL}/ws/${applicant_id}`);
+    this.socket = new WebSocket(`${import.meta.env.VITE_WEBSOCKET_BASE_URL}/ws/${applicant_id}`);
 
     this.socket.onopen = () => {
       this.connected = true;

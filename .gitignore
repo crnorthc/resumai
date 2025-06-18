@@ -9,3 +9,4 @@ pdf_builder.py
 test.py
 common/src/common.egg-info
 **/.DS_Store
+transfer.sh

@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  server_app:
+    build:
+      context: .
+      dockerfile: ./server_app/Dockerfile
+    volumes:
+      - ./common:/app/common
+    ports:
+      - '8000:8000'
+    depends_on:
+      - redis
+      - rabbitmq
+
+  worker_app:
+    build:
+      context: .
+      dockerfile: ./worker_app/Dockerfile.generator
+    volumes:
+      - ./common:/app/common
+    depends_on:
+      - redis
+      - rabbitmq
+
+  worker_app_cleanup:
+    build:
+      context: .
+      dockerfile: ./worker_app/Dockerfile.cleanup
+    volumes:
+      - ./common:/app/common
+    depends_on:
+      - rabbitmq
+
+  tool_ui:
+    build:
+      context: .
+      dockerfile: ./tool_ui/Dockerfile
+    ports:
+      - '5000:5000'
+
+  redis:
+    image: redis:8
+    ports:
+      - '6379:6379'
+
+  rabbitmq:
+    image: rabbitmq:4
+    ports:
+      - '5672:5672'
