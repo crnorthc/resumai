@@ -30,16 +30,10 @@ async def lifespan(_: FastAPI):
         pass
 
 
-origins = [
-    "http://localhost:5173",
-    "ws://localhost:5173",
-]
+origins = ["http://localhost:5000", "ws://localhost:5000"]
 
 
-app = FastAPI(lifespan=lifespan, debug=True)
-
-# DEPRECATED - partial state stored in client local storage now
-# app.include_router(applicant_router)
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
