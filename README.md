@@ -61,7 +61,7 @@ ResumAI is built with modern technologies and production-grade infrastructure co
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/your-username/resumai.git
+   git clone https://github.com/crnorthc/resumai.git
    cd resumai
    ```
 
