@@ -1,13 +1,13 @@
 #!/bin/bash
 
-apt-get update -y
-apt-get install -y docker.io docker-compose certbot nginx
-newgrp docker
-systemctl enable docker
-systemctl start docker
+sudo apt-get update -y
+sudo apt-get install -y docker.io docker-compose certbot nginx unzip curl
+sudo systemctl enable docker
+sudo systemctl start docker
 
 # Setup nginx
-sudo cp nginx.conf /etc/nginx/nginx.conf
+sudo cp nginx/nginx.conf /etc/nginx/nginx.conf
+sudo cp nginx/pre_ssl.conf /etc/nginx/sites-enabled/nginx
 sudo systemctl reload nginx
 
 sudo mkdir -p /var/www/certbot
@@ -17,6 +17,9 @@ sudo certbot certonly --webroot \
     --non-interactive \
     --agree-tos \
     --email crnorthc99@gmail.com
+
+sudo cp nginx/resumai.conf /etc/nginx/sites-enabled/nginx
+sudo systemctl reload nginx
 
 VALUE=$(aws ssm get-parameter \
   --name "KEY_ENCRYPTION_SEED" \

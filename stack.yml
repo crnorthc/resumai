@@ -62,8 +62,14 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - secretsmanager:GetSecretValue
-                Resource: 'arn:aws:ssm:us-east-1:150685103879:parameter/KEY_ENCRYPTION_SEED'
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:GetParametersByPath
+                Resource: arn:aws:ssm:us-east-1:150685103879:parameter/KEY_ENCRYPTION_SEED
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                Resource: arn:aws:ssm:us-east-1:150685103879:parameter/KEY_ENCRYPTION_SEED
 
   BackendInstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -79,7 +85,7 @@ Resources:
     Properties:
       InstanceType: t4g.micro
       KeyName: !Ref KeyPairName
-      ImageId: ami-050499786ebf55a6a # AWS Ubuntu 22.04 LTS
+      ImageId: ami-07041441b708acbd6 # AWS Ubuntu 24.04 LTS
       IamInstanceProfile: !Ref BackendInstanceProfile
       SecurityGroupIds:
         - !Ref BackendInstanceSecurityGroup
@@ -146,6 +152,10 @@ Resources:
             QueryString: false
             Cookies:
               Forward: none
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
 
   FrontendDNSRecord:
     Type: AWS::Route53::RecordSet
