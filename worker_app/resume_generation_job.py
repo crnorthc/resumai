@@ -8,7 +8,9 @@ from worker_app.document_builder.template_map import TEMPLATES
 from worker_app.ai_clients.openai_client import OpenAIClient
 from worker_app.ai_clients.anthropic_client import AnthropicClient
 from worker_app.ai_clients.gemini_client import GeminiClient
-from worker_app.instructions import instructions_template
+
+# from worker_app.instructions import instructions_template
+from worker_app.instructions_v2 import instructions_v2_template
 
 redis_client = RedisClient(
     os.environ.get("REDIS_HOST", "redis"), os.environ.get("REDIS_PORT", "6379")
@@ -89,7 +91,7 @@ class ResumeGenerationJob:
         return generated_info
 
     def generate_prompt(self):
-        prompt = instructions_template.render(
+        prompt = instructions_v2_template.render(
             all_positions=",".join(
                 [position.company for position in self.applicant.positions]
             ),

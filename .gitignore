@@ -10,4 +10,4 @@ test.py
 common/src/common.egg-info
 **/.DS_Store
 transfer.sh
-requirements.txt
+/requirements.txt

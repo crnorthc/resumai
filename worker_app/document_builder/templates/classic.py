@@ -222,7 +222,7 @@ class ClassicTemplate(ResumeTemplate):
         )
         writer.add_footer_line(textline)
         link_params = {
-            "id": f"{self.applicant.open_position.company}, {self.applicant.open_position.position}"
+            "id": f"{self.applicant.open_position.company.strip()}, {self.applicant.open_position.position.strip()}"
         }
 
         link = f"https://calebnorthcott.com/resume?{urlencode(link_params)}"

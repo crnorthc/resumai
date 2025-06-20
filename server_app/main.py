@@ -30,7 +30,12 @@ async def lifespan(_: FastAPI):
         pass
 
 
-origins = ["http://localhost:5000", "ws://localhost:5000"]
+origins = [
+    "http://localhost:5000",
+    "ws://localhost:5000",
+    "http://localhost:5173",
+    "ws://localhost:5173",
+]
 
 
 app = FastAPI(lifespan=lifespan)
