@@ -24,14 +24,22 @@ export function Home({ socket }: { socket: SocketClient }) {
   });
 
   socket.on(WebsocketResponseEvent.ConfirmPrompt, (data: string) => {
-    setConfirmedPrompt(data);
-    stepperState.setPrompt(data);
+    if (stepperState.step == 'editPrompt') {
+      setConfirmedPrompt(data);
+      stepperState.setPrompt(data);
+    }
   });
 
-  socket.on(WebsocketResponseEvent.ConfirmInfo, (data: ConfirmedGeneratedData) => stepperState.setGeneratedInfo(data));
+  socket.on(WebsocketResponseEvent.ConfirmInfo, (data: ConfirmedGeneratedData) => {
+    if (stepperState.step == 'editResume') {
+      stepperState.setGeneratedInfo(data);
+    }
+  });
 
   const onRestart = () => {
     stepperState.setStep('jobInfo');
+    stepperState.setGeneratedInfo(undefined);
+    stepperState.setPrompt('');
     setConfirmedInfo(null);
     setConfirmedPrompt('');
   };

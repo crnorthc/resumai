@@ -1,19 +1,20 @@
 import type { Stepper } from 'primereact/stepper';
 import { useContext, useEffect, type RefObject } from 'react';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { StepperStateContext, useStepperState } from '../useStepperState';
+import { StepperStateContext } from '../useStepperState';
 import { Button } from 'primereact/button';
 import { WebsocketRequestEvent, WebsocketResponseEvent } from '../../../types';
 import type SocketClient from '../../../socketClient';
 import { setConfirmedPrompt } from '../../../utils';
 
 export function StepThree({ stepperRef, socket }: { stepperRef: RefObject<Stepper | null>; socket: SocketClient }) {
-  const { prompt, setPrompt } = useContext(StepperStateContext);
+  const { prompt, setPrompt, step, setStep } = useContext(StepperStateContext);
 
-  const { setStep } = useStepperState();
   useEffect(() => {
     setStep('editPrompt');
   }, []);
+
+  console.log('Current step', step);
 
   socket.on(WebsocketResponseEvent.GenerationQueued, () => {
     stepperRef.current?.nextCallback();

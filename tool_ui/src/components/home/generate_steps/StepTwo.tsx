@@ -4,7 +4,7 @@ import { InputSwitch } from 'primereact/inputswitch';
 import { SelectButton } from 'primereact/selectbutton';
 import { useTemplates } from '../useTemplates';
 import { useContext, useEffect, useState, type RefObject } from 'react';
-import { StepperStateContext, useStepperState } from '../useStepperState';
+import { StepperStateContext } from '../useStepperState';
 import type { Stepper } from 'primereact/stepper';
 import type SocketClient from '../../../socketClient';
 import { ApiKeyType, WebsocketRequestEvent, WebsocketResponseEvent } from '../../../types';
@@ -14,7 +14,7 @@ import { AIModels } from '../models';
 import { Link } from 'react-router-dom';
 
 export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperRef: RefObject<Stepper | null> }) {
-  const { editBulletPoints, setEditBulletPoints, editPrompt, setEditPrompt } = useContext(StepperStateContext);
+  const { editBulletPoints, setEditBulletPoints, editPrompt, setEditPrompt, setStep } = useContext(StepperStateContext);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const { templates } = useTemplates();
   const documentConfig = getDocumentConfig();
@@ -25,7 +25,6 @@ export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperR
   const availableModels = AIModels.filter((model) => keys[model.code as ApiKeyType]);
   const [model, setModel] = useState<{ model: string; provider: ApiKeyType }>(documentConfig.model);
 
-  const { setStep } = useStepperState();
   useEffect(() => {
     setStep('settings');
   }, []);
@@ -36,6 +35,7 @@ export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperR
 
   socket.on(WebsocketResponseEvent.GenerationQueued, () => {
     stepperRef.current?.nextCallback();
+    console.log('\n NEXT');
   });
 
   const handleNext = () => {

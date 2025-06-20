@@ -1,6 +1,6 @@
 import type { Stepper } from 'primereact/stepper';
 import { useContext, useState, type ReactNode, type RefObject, type MouseEvent, useEffect } from 'react';
-import { StepperStateContext, useStepperState } from '../useStepperState';
+import { StepperStateContext } from '../useStepperState';
 import type SocketClient from '../../../socketClient';
 import { WebsocketRequestEvent, WebsocketResponseEvent, type ConfirmedGeneratedData } from '../../../types';
 import { OrderList } from 'primereact/orderlist';
@@ -10,11 +10,10 @@ import { Button } from 'primereact/button';
 import { setConfirmedInfo } from '../../../utils';
 
 export function StepFour({ stepperRef, socket }: { stepperRef: RefObject<Stepper | null>; socket: SocketClient }) {
-  const { generatedInfo, setGeneratedInfo } = useContext(StepperStateContext);
+  const { generatedInfo, setGeneratedInfo, setStep } = useContext(StepperStateContext);
   const [newTool, setNewTool] = useState('');
   const [newLanguage, setNewLanguage] = useState('');
 
-  const { setStep } = useStepperState();
   useEffect(() => {
     setStep('editResume');
   }, []);

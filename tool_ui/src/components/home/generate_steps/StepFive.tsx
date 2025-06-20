@@ -1,11 +1,10 @@
 import type { Stepper } from 'primereact/stepper';
 import { useContext, useEffect, type RefObject } from 'react';
 import { Button } from 'primereact/button';
-import { StepperStateContext, useStepperState } from '../useStepperState';
+import { StepperStateContext } from '../useStepperState';
 
 export function StepFive({ stepperRef }: { stepperRef: RefObject<Stepper | null> }) {
-  const { resume, setResume } = useContext(StepperStateContext);
-  const { setStep } = useStepperState();
+  const { resume, setResume, setStep } = useContext(StepperStateContext);
 
   useEffect(() => {
     setStep('download');

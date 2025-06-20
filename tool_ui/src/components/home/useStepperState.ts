@@ -66,8 +66,11 @@ export function useStepperState() {
   const [resume, setResume] = useState<ResumeResponse | undefined>();
 
   useEffect(() => {
-    searchParams.set('step', step);
-    setSearchParams(searchParams);
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev.toString());
+      newParams.set('step', step);
+      return newParams;
+    });
   }, [step]);
 
   const savedConfirmedInfo = getConfirmedInfo();

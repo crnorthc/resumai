@@ -1,13 +1,19 @@
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { useState, type FormEvent, type RefObject } from 'react';
+import { useContext, useEffect, useState, type FormEvent, type RefObject } from 'react';
 import { getJobData, updateJobData } from '../../../utils';
 import type { Stepper } from 'primereact/stepper';
+import { StepperStateContext } from '../useStepperState';
 
 export function StepOne({ stepperRef }: { stepperRef: RefObject<Stepper | null> }) {
   const [jobData, setJobData] = useState(getJobData());
   const [jobDescription, setJobDescription] = useState(jobData.job_description ?? '');
+
+  const { setStep } = useContext(StepperStateContext);
+  useEffect(() => {
+    setStep('jobInfo');
+  }, []);
 
   const handleUpdateJob = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -16,6 +22,7 @@ export function StepOne({ stepperRef }: { stepperRef: RefObject<Stepper | null> 
     updateJobData({ ...data, job_description: jobDescription });
     setJobData(getJobData());
     stepperRef.current?.nextCallback();
+    console.log('\n NEXT');
   };
 
   return (
