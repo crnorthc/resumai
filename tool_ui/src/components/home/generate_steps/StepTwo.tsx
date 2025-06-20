@@ -20,7 +20,6 @@ export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperR
   const documentConfig = getDocumentConfig();
   const [template, setTemplate] = useState<string>(documentConfig?.resume_template);
   const [darkMode, setDarkMode] = useState(documentConfig?.dark_mode ?? true);
-  const [docType, selectDocType] = useState<'pdf' | 'docx'>(documentConfig?.document_type ?? 'pdf');
 
   const keys = getApiKeys();
   const availableModels = AIModels.filter((model) => keys[model.code as ApiKeyType]);
@@ -42,7 +41,6 @@ export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperR
   const handleNext = () => {
     const documentConfig = {
       dark_mode: darkMode,
-      document_type: docType,
       edit_generated_info: editBulletPoints,
       edit_prompt: editPrompt,
       resume_template: template,
@@ -86,7 +84,7 @@ export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperR
             </div>
           </div>
         )}
-        <div>
+        <div className="w-3/4">
           <div className="grid grid-cols-2">
             <div className="flex flex-col gap-1">
               <label className="text-sm text-white/40">Edit Bullet Points</label>
@@ -120,17 +118,15 @@ export function StepTwo({ socket, stepperRef }: { socket: SocketClient; stepperR
                 style={{ minWidth: '14rem' }}
               />
             </div>
-            <div className="col-span-1 flex flex-col items-end gap-1">
-              <label className="text-sm text-white/40">Document Type</label>
-              <SelectButton value={docType} onChange={(e) => selectDocType(e.value)} options={['pdf', 'docx']} />
-            </div>
-            <div className="col-span-1 flex flex-col items-end gap-1">
-              <label className="text-sm text-white/40">Theme</label>
-              <SelectButton
-                value={darkMode ? 'Dark' : 'Light'}
-                onChange={(e) => setDarkMode(e.value == 'Dark')}
-                options={['Dark', 'Light']}
-              />
+            <div className="col-span-2 flex justify-end">
+              <div className="flex flex-col items-end gap-1">
+                <label className="text-sm text-white/40">Theme</label>
+                <SelectButton
+                  value={darkMode ? 'Dark' : 'Light'}
+                  onChange={(e) => setDarkMode(e.value == 'Dark')}
+                  options={['Dark', 'Light']}
+                />
+              </div>
             </div>
           </div>
           <div className="flex flex-col gap-1 mt-6">
