@@ -1,13 +1,5 @@
 import { APPLICANT_ID_KEY } from './hooks/useApplicantId';
-import type {
-  ApplicantData,
-  EncryptedApiKey,
-  JobDataPayload,
-  PositionPayload,
-  ResumeResponse,
-  ResumeTemplate,
-} from './types';
-import { updateApplicantData, updateJobData } from './utils';
+import type { EncryptedApiKey, ResumeResponse, ResumeTemplate } from './types';
 
 export class ApiClient {
   static baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
@@ -73,94 +65,5 @@ export class ApiClient {
     const encryptedKeyData = await response.json();
 
     return encryptedKeyData;
-  }
-
-  static async updateApplicantInfo(data: ApplicantData): Promise<void> {
-    const applicantId = window.localStorage.getItem(APPLICANT_ID_KEY);
-    const response = await fetch(`${this.baseUrl}/applicant/${applicantId}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to update applicant info: ${response.statusText}`);
-    }
-
-    const applicantData = await response.json();
-    updateApplicantData(applicantData);
-  }
-
-  static async updateJob(data: JobDataPayload): Promise<void> {
-    const applicantId = window.localStorage.getItem(APPLICANT_ID_KEY);
-    const response = await fetch(`${this.baseUrl}/applicant/${applicantId}/job`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to update applicant info: ${response.statusText}`);
-    }
-
-    const jobData = await response.json();
-    updateJobData(jobData.job);
-  }
-
-  static async addPosition(data: PositionPayload): Promise<void> {
-    const applicantId = window.localStorage.getItem(APPLICANT_ID_KEY);
-    const response = await fetch(`${this.baseUrl}/applicant/${applicantId}/position`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to add position: ${response.statusText}`);
-    }
-
-    const applicantData = await response.json();
-    updateApplicantData(applicantData);
-  }
-
-  static async updatePosition(data: PositionPayload, position_index: number): Promise<void> {
-    const applicantId = window.localStorage.getItem(APPLICANT_ID_KEY);
-    const response = await fetch(`${this.baseUrl}/applicant/${applicantId}/position/${position_index}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to update position: ${response.statusText}`);
-    }
-
-    const applicantData = await response.json();
-    updateApplicantData(applicantData);
-  }
-
-  static async deletePosition(position_index: number): Promise<void> {
-    const applicantId = window.localStorage.getItem(APPLICANT_ID_KEY);
-    const response = await fetch(`${this.baseUrl}/applicant/${applicantId}/position/${position_index}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to delete position: ${response.statusText}`);
-    }
-
-    const applicantData = await response.json();
-    updateApplicantData(applicantData);
   }
 }

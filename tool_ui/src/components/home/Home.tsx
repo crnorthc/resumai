@@ -72,7 +72,7 @@ export function Home({ socket }: { socket: SocketClient }) {
             </StepperPanel>
           )}
           <StepperPanel header="Download">
-            <StepFive stepperRef={stepperRef} resume={stepperState.resume} />
+            <StepFive stepperRef={stepperRef} />
           </StepperPanel>
         </Stepper>
       </div>
