@@ -49,20 +49,12 @@ export class ApiClient {
       throw new Error(`Failed to get resume: ${response.statusText}`);
     }
 
-    const contentType = response.headers.get('content-type');
-
     const blob = await response.blob();
 
     const disposition = response.headers.get('content-disposition');
     const match = disposition?.match(/filename="(.+)"/);
-
-    if (contentType === 'application/pdf') {
-      const filename = match?.[1] ?? 'resume.pdf';
-      return { filePath: window.URL.createObjectURL(blob), type: 'pdf', filename };
-    }
-
-    const filename = match?.[1] ?? 'resume.docx';
-    return { filePath: window.URL.createObjectURL(blob), type: 'docx', filename };
+    const filename = match?.[1] ?? 'resume.pdf';
+    return { filePath: window.URL.createObjectURL(blob), filename };
   }
 
   static async encryptApiKey(rawApiKey: string): Promise<EncryptedApiKey> {

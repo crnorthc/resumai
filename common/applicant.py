@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 from common.redis_client import RedisClient
 from common.applicant_schemas import (
     ModelSchema,
-    DocumentType,
     OpenPositionSchema,
     PositionSchema,
     GeneratedData,
@@ -50,7 +49,6 @@ class Applicant(BaseModel):
     open_position: OpenPositionSchema
     edit_generated_info: bool
     edit_prompt: bool
-    document_type: DocumentType
     resume_template: ResumeTemplate
     dark_mode: bool
     model: ModelSchema

@@ -39,6 +39,3 @@ class GeneratedData(BaseModel):
     positions: PositionsSchema
     languages: List[str] = Field(..., min_items=1)
     tools: List[str] = Field(..., min_items=1)
-
-
-DocumentType = Literal["pdf", "docx"]

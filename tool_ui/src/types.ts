@@ -18,7 +18,6 @@ export interface EncryptedApiKey {
 export type ApiKeys = Record<ApiKeyType, EncryptedApiKey | undefined>;
 
 export interface DocumentConfigType {
-  document_type: 'pdf' | 'docx';
   edit_generated_info: boolean;
   edit_prompt: boolean;
   resume_template: string;
@@ -118,7 +117,6 @@ export type ServerCallback<K extends WebsocketRequestEventType> = ServerEventsTy
 export type ServerEventListeners = Map<keyof ServerEventsType, ServerEventsType[keyof ServerEventsType]>;
 
 export interface ResumeResponse {
-  type: 'pdf' | 'docx';
   filePath: string;
   filename: string;
 }

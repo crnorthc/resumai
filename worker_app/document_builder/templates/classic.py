@@ -1,6 +1,5 @@
 from urllib.parse import urlencode
 from common.applicant import Applicant
-from worker_app.document_builder.docx_writer import DOCXWriter
 from worker_app.document_builder.pdf_writer import PDFWriter
 from worker_app.document_builder.templates.template_interface import ResumeTemplate
 from worker_app.document_builder.writer_types import (
@@ -14,23 +13,22 @@ from worker_app.document_builder.writer_types import (
 class ClassicTemplate(ResumeTemplate):
     def __init__(self, applicant: Applicant):
         self.applicant = applicant
-        self.writer_class = (
-            PDFWriter if self.applicant.document_type == "pdf" else DOCXWriter
-        )
+        self.writer = PDFWriter(**self.options)
 
     @property
     def options(self) -> WriterOptions:
         return {
             "font": Font.ROBOTO,
             "file_path": f"{self.applicant.name.lower().replace(" ", "_")}_resume",
-            "background_color": "#323232" if self.applicant.dark_mode else "#efefef",
+            "background_color": "#020101" if self.applicant.dark_mode else "#efefef",
             "text_color": "#efefef" if self.applicant.dark_mode else "#323232",
         }
 
     def run(self):
-        writer = self.writer_class(**self.options)
-        writer.add_text(self.applicant.name, font_style=FontStyle.REGULAR, font_size=21)
-        writer.add_table(
+        self.writer.add_text(
+            self.applicant.name, font_style=FontStyle.REGULAR, font_size=21
+        )
+        self.writer.add_table(
             [
                 [
                     {
@@ -55,18 +53,18 @@ class ClassicTemplate(ResumeTemplate):
             ],
             row_padding=5,
         )
-        writer.add_vertical_space(5)
-        writer.add_text(
+        self.writer.add_vertical_space(5)
+        self.writer.add_text(
             "Work Experience",
             font_style=FontStyle.BOLD,
             font_size=13,
             alignment=Alignment.LEFT,
             line_spacing=0.5,
         )
-        writer.add_horizontal_line(2)
+        self.writer.add_horizontal_line(2)
 
         for position in self.applicant.positions:
-            textline = writer.create_text_line(
+            textline = self.writer.create_text_line(
                 [
                     {
                         "value": position.position,
@@ -80,7 +78,7 @@ class ClassicTemplate(ResumeTemplate):
                     },
                 ]
             )
-            writer.add_table(
+            self.writer.add_table(
                 [
                     [
                         {"value": textline, "alignment": Alignment.LEFT},
@@ -99,7 +97,7 @@ class ClassicTemplate(ResumeTemplate):
                 if self.applicant.confirmed_info
                 else self.applicant.generated_info.positions
             )
-            writer.add_bullet_points(
+            self.writer.add_bullet_points(
                 [
                     {
                         "value": point,
@@ -110,15 +108,15 @@ class ClassicTemplate(ResumeTemplate):
                     for point in positions.root[position.company]
                 ]
             )
-        writer.add_vertical_space(10)
-        writer.add_text(
+        self.writer.add_vertical_space(10)
+        self.writer.add_text(
             "Skills",
             font_style=FontStyle.BOLD,
             font_size=13,
             alignment=Alignment.LEFT,
             line_spacing=0.5,
         )
-        writer.add_horizontal_line(2)
+        self.writer.add_horizontal_line(2)
         languages = (
             self.applicant.confirmed_info.languages
             if self.applicant.confirmed_info
@@ -129,7 +127,7 @@ class ClassicTemplate(ResumeTemplate):
             if self.applicant.confirmed_info
             else self.applicant.generated_info.tools
         )
-        writer.add_table(
+        self.writer.add_table(
             [
                 [
                     {
@@ -163,16 +161,16 @@ class ClassicTemplate(ResumeTemplate):
             row_padding=5,
             column_widths=[1, 5],
         )
-        writer.add_vertical_space(10)
-        writer.add_text(
+        self.writer.add_vertical_space(10)
+        self.writer.add_text(
             "Education",
             font_style=FontStyle.BOLD,
             font_size=13,
             alignment=Alignment.LEFT,
             line_spacing=0.5,
         )
-        writer.add_horizontal_line(2)
-        textline = writer.create_text_line(
+        self.writer.add_horizontal_line(2)
+        textline = self.writer.create_text_line(
             [
                 {
                     "value": self.applicant.college,
@@ -186,7 +184,7 @@ class ClassicTemplate(ResumeTemplate):
                 },
             ]
         )
-        writer.add_table(
+        self.writer.add_table(
             [
                 [
                     {"value": textline, "alignment": Alignment.LEFT},
@@ -201,7 +199,7 @@ class ClassicTemplate(ResumeTemplate):
             row_padding=3,
             column_widths=[4, 1],
         )
-        textline = writer.create_text_line(
+        textline = self.writer.create_text_line(
             [
                 {
                     "value": "This resume was custom generated by an AI tool ",
@@ -220,11 +218,11 @@ class ClassicTemplate(ResumeTemplate):
                 },
             ]
         )
-        writer.add_footer_line(textline)
+        self.writer.add_footer_line(textline)
         link_params = {
             "id": f"{self.applicant.open_position.company.strip()}, {self.applicant.open_position.position.strip()}"
         }
 
         link = f"https://calebnorthcott.com/resume?{urlencode(link_params)}"
-        writer.add_footer_line(link, font_size=10)
-        return writer.save()
+        self.writer.add_footer_line(link, font_size=10)
+        return self.writer.save()

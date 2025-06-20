@@ -9,7 +9,6 @@ from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.colors import HexColor
 
 
-from worker_app.document_builder.resume_writer_interface import ResumeWriter
 from worker_app.document_builder.writer_types import (
     BulletPoints,
     Font,
@@ -17,13 +16,14 @@ from worker_app.document_builder.writer_types import (
     Alignment,
     TableData,
     TextLine,
+    TextLineData,
 )
 from worker_app.document_builder.utils import FONT_CONFIGS
 
 WIDTH, HEIGHT = LETTER
 
 
-class PDFWriter(ResumeWriter):
+class PDFWriter:
 
     def __init__(
         self,
@@ -38,18 +38,17 @@ class PDFWriter(ResumeWriter):
         background_color="#ffffff",
         text_color="#000000",
     ):
-        super().__init__(
-            font=font,
-            file_path=f"{os.environ.get('COMPLETED_RESUMES_DIR', '/app/completed_resumes')}/{file_path}.docx",
-            default_font_size=default_font_size,
-            default_font_style=default_font_style,
-            margin_top=margin_top,
-            margin_bottom=margin_bottom,
-            margin_left=margin_left,
-            margin_right=margin_right,
-            background_color=background_color,
-            text_color=text_color,
-        )
+        self.font = font
+        self.file_path = f"{os.environ.get('COMPLETED_RESUMES_DIR', '/app/completed_resumes')}/{file_path}.pdf"
+        self.default_font_size = default_font_size
+        self.default_font_style = default_font_style
+        self.margin_top = margin_top
+        self.margin_bottom = margin_bottom
+        self.margin_left = margin_left
+        self.margin_right = margin_right
+        self.background_color = background_color
+        self.text_color = text_color
+
         self.document = canvas.Canvas(self.file_path, pagesize=LETTER)
         self.__load_font(font)
 
@@ -322,3 +321,30 @@ class PDFWriter(ResumeWriter):
             self.current_line_y - 2,
         )
         self.current_line_y -= 24
+
+    def _validate_table_params(self, data: TableData, column_widths: List[int]):
+        if not data or not isinstance(data, list):
+            raise ValueError("Data must be a non-empty list.")
+
+        expected_length = len(data[0])
+        for row in data:
+            if not isinstance(row, list):
+                raise ValueError("Each row in data must be a list.")
+            if not all(isinstance(cell, dict) for cell in row):
+                raise ValueError("Each cell in a row must be a dictionary.")
+            if len(row) != expected_length:
+                raise ValueError("All rows in data must have the same length.")
+
+        if not column_widths or not isinstance(column_widths, list):
+            raise ValueError("Column widths must be a non-empty list.")
+
+        if len(data[0]) != len(column_widths):
+            raise ValueError(
+                "Number of columns in data must match the number of column widths."
+            )
+
+    def _get_font(self, style: FontStyle):
+        return f"{self.font.value}-{style.value}"
+
+    def create_text_line(self, parts: List[TextLineData]):
+        return TextLine(parts)

@@ -66,18 +66,11 @@ def handle_encryption(payload: EncryptApiKeySchema):
 @app.get("/applicant/{applicant_id}/resume")
 def get_resume(applicant_id: str):
     applicant = Applicant.get_applicant(applicant_id)
-    if applicant.document_type == "pdf":
-        return FileResponse(
-            applicant.resume_path,
-            media_type="application/pdf",
-            filename=f"{applicant.name.lower().replace(" ", "_")}_resume.pdf",
-        )
-    else:
-        return FileResponse(
-            applicant.resume_path,
-            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            filename=f"{applicant.name.lower().replace(" ", "_")}_resume.docx",
-        )
+    return FileResponse(
+        applicant.resume_path,
+        media_type="application/pdf",
+        filename=f"{applicant.name.lower().replace(" ", "_")}_resume.pdf",
+    )
 
 
 @app.get("/templates")
