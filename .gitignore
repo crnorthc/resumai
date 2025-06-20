@@ -11,3 +11,5 @@ common/src/common.egg-info
 **/.DS_Store
 transfer.sh
 /requirements.txt
+cover_letter
+cover_letter.pdf
