@@ -8,7 +8,7 @@ Generate tailored, LLM-powered resumes in seconds — no account required.
 
 ## 🧠 Overview
 
-**ResumAI** is a web application that helps software engineers and job seekers generate tailored resumes using large language models (LLMs). Users can enter and store personal, educational, and professional background details, then input a job description and select from popular LLMs (OpenAI, Gemini, or Anthropic) to create a resume optimized for the target role — exportable as a PDF or DOCX.
+**ResumAI** is a web application that helps software engineers and job seekers generate tailored resumes using large language models (LLMs). Users can enter and store personal, educational, and professional background details, then input a job description and select from popular LLMs (OpenAI, Gemini, or Anthropic) to create a resume optimized for the target role — exportable as a PDF.
 
 No sign-up is needed — all data remains local to the browser. Users provide their own LLM API keys, which are encrypted to be used securely on the server, and never persisted.
 
@@ -18,7 +18,7 @@ No sign-up is needed — all data remains local to the browser. Users provide th
 
 - 🔒 No sign-up or user accounts
 - 🌐 Secure client-side encryption for API keys
-- 📄 Generate resumes in PDF or DOCX format
+- 📄 Generate resumes in PDF format
 - 🧠 Choose your preferred LLM model (OpenAI, Gemini, or Anthropic)
 - ⚡ Real-time feedback via WebSockets
 - 🧰 Built with production-ready Python & React tooling
@@ -34,7 +34,7 @@ ResumAI is built with modern technologies and production-grade infrastructure co
 - **Task Queue**: Celery with RabbitMQ
 - **Temporary Data Store**: Redis (for job context)
 - **Resume Generation**: Custom logic leveraging OpenAI, Gemini, or Claude
-- **PDF/DOCX Export**: `python-docx` and `reportlab`
+- **PDF Export**: `reportlab`
 - **Encryption**: Fernet encryption for secure handling of API keys
 
 ### 🏗 Deployment
