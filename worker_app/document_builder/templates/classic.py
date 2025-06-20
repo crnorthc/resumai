@@ -19,8 +19,8 @@ class ClassicTemplate(ResumeTemplate):
     def options(self) -> WriterOptions:
         return {
             "font": Font.ROBOTO,
-            "file_path": f"{self.applicant.name.lower().replace(" ", "_")}_resume",
-            "background_color": "#020101" if self.applicant.dark_mode else "#efefef",
+            "file_path": f"{self.applicant.name.lower().replace(' ', '_')}_resume",
+            "background_color": "#323232" if self.applicant.dark_mode else "#efefef",
             "text_color": "#efefef" if self.applicant.dark_mode else "#323232",
         }
 

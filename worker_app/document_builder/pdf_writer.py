@@ -24,7 +24,6 @@ WIDTH, HEIGHT = LETTER
 
 
 class PDFWriter:
-
     def __init__(
         self,
         file_path: str,

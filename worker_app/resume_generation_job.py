@@ -84,11 +84,12 @@ class ResumeGenerationJob:
             self.generate_info(prompt)
 
     def generate_info(self, prompt: str):
-        generated_info = self.ai_client.generate_resume_info(self.applicant, prompt)
-        self.applicant.generated_info = GeneratedData.model_validate(generated_info)
-        self.applicant.save()
+        if not self.applicant.generated_info:
+            generated_info = self.ai_client.generate_resume_info(self.applicant, prompt)
+            self.applicant.generated_info = GeneratedData.model_validate(generated_info)
+            self.applicant.save()
 
-        return generated_info
+            return generated_info
 
     def generate_prompt(self):
         prompt = instructions_v2_template.render(
