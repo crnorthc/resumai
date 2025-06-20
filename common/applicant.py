@@ -15,7 +15,7 @@ from common.applicant_schemas import (
 )
 from common.resume_templates import ResumeTemplate
 
-load_dotenv()
+load_dotenv("server_app/.env", override=True)
 
 redis_client = RedisClient(
     os.environ.get("REDIS_HOST", "redis"), os.environ.get("REDIS_PORT", "6379")

@@ -3,7 +3,7 @@ import os
 from celery import Celery
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv("server_app/.env", override=True)
 
 username = os.environ.get("RABBIT_MQ_USERNAME", "guest")
 password = os.environ.get("RABBIT_MQ_PASSWORD", "guest")
