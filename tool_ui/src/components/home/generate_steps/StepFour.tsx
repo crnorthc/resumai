@@ -2,7 +2,7 @@ import type { Stepper } from 'primereact/stepper';
 import { useContext, useState, type ReactNode, type RefObject, type MouseEvent, useEffect } from 'react';
 import { StepperStateContext, useStepperState } from '../useStepperState';
 import type SocketClient from '../../../socketClient';
-import { WebsocketRequestEvent, WebsocketResponseEvent } from '../../../types';
+import { WebsocketRequestEvent, WebsocketResponseEvent, type ConfirmedGeneratedData } from '../../../types';
 import { OrderList } from 'primereact/orderlist';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { InputText } from 'primereact/inputtext';
@@ -19,10 +19,10 @@ export function StepFour({ stepperRef, socket }: { stepperRef: RefObject<Stepper
     setStep('editResume');
   }, []);
 
-  if (!generatedInfo.positions.length) {
+  if (!generatedInfo) {
     return (
       <div className="w-full text-center pt-24 text-2xl space-y-4">
-        <h1>Loading</h1>
+        <h1>Generating resume information...</h1>
         <i className="pi pi-spin pi-spinner" style={{ fontSize: '2rem' }}></i>
         <div className="w-full flex mt-24">
           <Button onClick={stepperRef.current?.prevCallback} label="Back" severity="secondary" outlined />
@@ -105,6 +105,12 @@ export function StepFour({ stepperRef, socket }: { stepperRef: RefObject<Stepper
     setGeneratedInfo(originalInfo);
   };
 
+  const handleBack = () => {
+    setConfirmedInfo(null);
+    setGeneratedInfo(undefined);
+    stepperRef.current?.prevCallback();
+  };
+
   return (
     <div>
       <Accordion>
@@ -161,7 +167,7 @@ export function StepFour({ stepperRef, socket }: { stepperRef: RefObject<Stepper
         </AccordionTab>
       </Accordion>
       <div className="w-full flex justify-between mt-12">
-        <Button onClick={stepperRef.current?.prevCallback} label="Back" severity="secondary" outlined />
+        <Button onClick={handleBack} label="Back" severity="secondary" outlined />
         <Button onClick={handleNext} label="Next" outlined />
       </div>
     </div>
@@ -256,26 +262,26 @@ function PositionList({ company, points }: { company: string; points: string[] }
   const [newPoint, setNewPoint] = useState('');
 
   const updatePosition = (company: string, points: string[]) => {
-    const originalInfo = { ...generatedInfo };
+    const originalInfo = { ...generatedInfo } as ConfirmedGeneratedData;
     originalInfo.positions[company] = points;
     setGeneratedInfo(originalInfo);
   };
 
   const addPoint = () => {
-    const originalInfo = { ...generatedInfo };
+    const originalInfo = { ...generatedInfo } as ConfirmedGeneratedData;
     originalInfo.positions[company] = [...points, newPoint];
     setGeneratedInfo(originalInfo);
     setNewPoint('');
   };
 
   const deletePoint = (index: number) => {
-    const originalInfo = { ...generatedInfo };
+    const originalInfo = { ...generatedInfo } as ConfirmedGeneratedData;
     originalInfo.positions[company].splice(index, 1);
     setGeneratedInfo(originalInfo);
   };
 
   const updatePoint = (index: number, value: string) => {
-    const originalInfo = { ...generatedInfo };
+    const originalInfo = { ...generatedInfo } as ConfirmedGeneratedData;
     originalInfo.positions[company][index] = value;
     setGeneratedInfo(originalInfo);
   };

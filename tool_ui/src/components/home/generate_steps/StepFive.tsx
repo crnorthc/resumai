@@ -1,11 +1,12 @@
 import type { Stepper } from 'primereact/stepper';
-import { useEffect, type RefObject } from 'react';
-import type { ResumeResponse } from '../../../types';
+import { useContext, useEffect, type RefObject } from 'react';
 import { Button } from 'primereact/button';
-import { useStepperState } from '../useStepperState';
+import { StepperStateContext, useStepperState } from '../useStepperState';
 
-export function StepFive({ stepperRef, resume }: { stepperRef: RefObject<Stepper | null>; resume?: ResumeResponse }) {
+export function StepFive({ stepperRef }: { stepperRef: RefObject<Stepper | null> }) {
+  const { resume, setResume } = useContext(StepperStateContext);
   const { setStep } = useStepperState();
+
   useEffect(() => {
     setStep('download');
   }, []);
@@ -13,7 +14,7 @@ export function StepFive({ stepperRef, resume }: { stepperRef: RefObject<Stepper
   const download = (url: string, filename: string) => {
     const link = document.createElement('a');
     link.href = url;
-    link.download = filename; // sets the desired filename
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -21,14 +22,20 @@ export function StepFive({ stepperRef, resume }: { stepperRef: RefObject<Stepper
 
   if (!resume) {
     return (
-      <div className="w-full text-center pt-24 text-2xl">
-        <h1>No resume generated</h1>
+      <div className="w-full text-center pt-24 text-2xl space-y-4">
+        <h1>Constructing your tailored resume...</h1>
+        <i className="pi pi-spin pi-spinner" style={{ fontSize: '2rem' }}></i>
         <div className="w-full flex mt-24">
           <Button onClick={stepperRef.current?.prevCallback} label="Back" severity="secondary" outlined />
         </div>
       </div>
     );
   }
+
+  const handleBack = () => {
+    setResume(undefined);
+    stepperRef.current?.prevCallback();
+  };
 
   return (
     <div>
@@ -52,7 +59,7 @@ export function StepFive({ stepperRef, resume }: { stepperRef: RefObject<Stepper
         </div>
       )}
       <div className="w-full flex mt-12">
-        <Button onClick={stepperRef.current?.prevCallback} label="Back" severity="secondary" outlined />
+        <Button onClick={handleBack} label="Back" severity="secondary" outlined />
       </div>
     </div>
   );

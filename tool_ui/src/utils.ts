@@ -41,8 +41,11 @@ export const getConfirmedPrompt = () => window.localStorage.getItem(CONFIRMED_PR
 
 export const setConfirmedPrompt = (prompt: string) => window.localStorage.setItem(CONFIRMED_PROMPT_KEY, prompt);
 
-export const getConfirmedInfo = () =>
-  JSON.parse(window.localStorage.getItem(CONFIRMED_INFO) ?? '{}') as ConfirmedGeneratedData;
+export const getConfirmedInfo = () => {
+  const savedInfo = window.localStorage.getItem(CONFIRMED_INFO);
+
+  return savedInfo ? JSON.parse(savedInfo) : undefined;
+};
 
 export const setConfirmedInfo = (confirmedInfo: ConfirmedGeneratedData | null) =>
   window.localStorage.setItem(CONFIRMED_INFO, JSON.stringify(confirmedInfo));

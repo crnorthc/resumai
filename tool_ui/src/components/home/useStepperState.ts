@@ -11,8 +11,8 @@ export type StepperStateContextType = {
   setEditPrompt: React.Dispatch<React.SetStateAction<boolean>>;
   prompt: string;
   setPrompt: React.Dispatch<React.SetStateAction<string>>;
-  generatedInfo: ConfirmedGeneratedData;
-  setGeneratedInfo: React.Dispatch<React.SetStateAction<ConfirmedGeneratedData>>;
+  generatedInfo: ConfirmedGeneratedData | undefined;
+  setGeneratedInfo: React.Dispatch<React.SetStateAction<ConfirmedGeneratedData | undefined>>;
   resume: ResumeResponse | undefined;
   setResume: React.Dispatch<React.SetStateAction<ResumeResponse | undefined>>;
   step: StepperStep;
@@ -32,7 +32,7 @@ export const StepperStateContext = createContext<StepperStateContextType>({
   setPrompt: (val) => {
     console.log(val);
   },
-  generatedInfo: { positions: {}, tools: [], languages: [] },
+  generatedInfo: undefined,
   setGeneratedInfo: (val) => {
     console.log(val);
   },
@@ -71,13 +71,7 @@ export function useStepperState() {
   }, [step]);
 
   const savedConfirmedInfo = getConfirmedInfo();
-  const [generatedInfo, setGeneratedInfo] = useState<ConfirmedGeneratedData>(
-    savedConfirmedInfo ?? {
-      positions: {},
-      tools: [],
-      languages: [],
-    }
-  );
+  const [generatedInfo, setGeneratedInfo] = useState<ConfirmedGeneratedData | undefined>(savedConfirmedInfo);
 
   return {
     editBulletPoints,
